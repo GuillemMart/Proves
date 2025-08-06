@@ -1,0 +1,15 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '--build-arg=DOCKER_BUILDKIT=1'
+      - '-f'
+      - 'Dockerfile.rethinkdb'
+      - '--progress=plain'
+      - '--compress'
+      - '--squash'
+      - '-t'
+      - 'europe-southwest1-docker.pkg.dev/rosepetal-dev/rosepetal-dep/rosepetal-dep-proves'
+      - '.'
+    env:
+      - 'DOCKER_BUILDKIT=1'
