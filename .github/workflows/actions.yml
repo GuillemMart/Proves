@@ -13,7 +13,8 @@ jobs:
       #  working-directory: ./
     #steps:
      # - name: fem un build al google cloud artifacts
-      #run: ./build_script
+      #run: gcloud builds submit --tag europe-southwest1-docker.pkg.dev/rosepetal-dev/rosepetal-dep/rosepetal-dep-proves
+
   hello_world:
     runs-on: ubuntu-latest
     steps:
