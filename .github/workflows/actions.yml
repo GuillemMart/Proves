@@ -31,8 +31,8 @@ jobs:
           version_tag=$(gcloud artifacts docker tags list "$IMAGE"| grep "$digest" | grep v. | awk '{print $1}')
 
           echo "Found version tag: $version_tag"
-
-          # Export to output
-          echo "version_tag=$version_tag" >> $GITHUB_OUTPUT
+          {echo "version_tag<<EOF"
+          echo "$version_tag"
+          echo "EOF" } >> "$GITHUB_OUTPUT"
       - name: Enviar la construcció a Google Cloud Build
         run: gcloud builds submit --config=cloudbuild.yaml .
