@@ -9,7 +9,9 @@ steps:
       - '--compress'
       - '--squash'
       - '-t'
-      - 'europe-southwest1-docker.pkg.dev/rosepetal-dev/rosepetal-dep/rosepetal-dep-proves'
+      - 'europe-southwest1-docker.pkg.dev/rosepetal-dev/rosepetal-dep/rosepetal-dep-proves:latest'
+      - '-t'
+      - 'europe-southwest1-docker.pkg.dev/rosepetal-dev/rosepetal-dep/rosepetal-dep-proves:$_TAG'
       - '.'
     env:
       - 'DOCKER_BUILDKIT=1'
