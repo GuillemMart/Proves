@@ -13,7 +13,7 @@ jobs:
         working-directory: ./
     steps:
       - name: Instal·lar Google Cloud SDK
-        run: curl -sSL https://sdk.cloud.google.com | bash source $HOME/google-cloud-sdk/path.bash.inc
+        run: curl -sSL https://sdk.cloud.google.com | bash
 
       - name: Autenticar-se amb Google Cloud
         run: |
