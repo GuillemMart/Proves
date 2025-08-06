@@ -1,5 +1,4 @@
 #Aquest github actions té per objectiu el build automàtic de noves versions de les imatges a Cloud Build respectant les versions actuals
-
 name: Build Artifacts
 
 on:
