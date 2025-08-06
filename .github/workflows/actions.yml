@@ -16,7 +16,9 @@ jobs:
         run: curl -sSL https://sdk.cloud.google.com | bash source $HOME/google-cloud-sdk/path.bash.inc
 
       - name: Autenticar-se amb Google Cloud
-        run: gcloud auth activate-service-account --key-file=$GOOGLE_CLOUD_KEY_FILE
+        run: |
+          source $HOME/google-cloud-sdk/path.bash.inc
+          gcloud auth activate-service-account --key-file=$GOOGLE_CLOUD_KEY_FILE
         env:
           GOOGLE_CLOUD_KEY_FILE: ${{ secrets.GOOGLE_CLOUD_KEY_FILE }}
 
