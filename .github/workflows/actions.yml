@@ -15,12 +15,10 @@ jobs:
       - name: Instal·lar Google Cloud SDK
         run: curl -sSL https://sdk.cloud.google.com | bash
 
-      - name: Autenticar-se amb Google Cloud
-        run: |
-          source $HOME/google-cloud-sdk/path.bash.inc
-          gcloud auth activate-service-account --key-file=$GOOGLE_CLOUD_KEY_FILE
-        env:
-          GOOGLE_CLOUD_KEY_FILE: ${{ secrets.GOOGLE_CLOUD_KEY_FILE }}
+      - name: 'Autenticar-se amb Google Cloud'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GOOGLE_CLOUD_KEY_FILE }}'
 
       - name: Enviar la construcció a Google Cloud Build
         run: gcloud builds submit --config=cloudbuild.yaml .
