@@ -15,3 +15,5 @@ steps:
       - '.'
     env:
       - 'DOCKER_BUILDKIT=1'
+substitutions:
+  -TAG: 'v.1.0.0'
