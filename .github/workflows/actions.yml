@@ -8,12 +8,10 @@ on:
 jobs:
   build_artifacts:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./
     steps:
-      - name: Instal·lar Google Cloud SDK
-        run: curl -sSL https://sdk.cloud.google.com | bash
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: 'Autenticar-se amb Google Cloud'
         uses: 'google-github-actions/auth@v2'
