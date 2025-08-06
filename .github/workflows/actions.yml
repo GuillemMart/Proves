@@ -19,20 +19,24 @@ jobs:
         with:
           credentials_json: '${{ secrets.GOOGLE_CLOUD_KEY_FILE }}'
 
-      - name: Extract latest version tag
+      - name: Trobar el tag de la versio (v.x.x.x)
         id: extract_tag
         run: |
           IMAGE="europe-southwest1-docker.pkg.dev/rosepetal-dev/rosepetal-dep/rosepetal-dep-ajenti"
           digest=$(gcloud artifacts docker tags list "$IMAGE" | grep latest | awk '{print $3}')
+          if [[ -z "$digest" ]]; then
+            echo "Encara no hi ha cap imatge penjada"
+            echo "tag=v.1.0.0" >> $GITHUB_OUTPUT
+          else
+            echo "Digest: $digest"
 
-          echo "Digest: $digest"
-
-          echo "Looking for version tag(s) matching this digest..."
-          version_tag=$(gcloud artifacts docker tags list "$IMAGE"| grep "$digest" | grep v. | awk '{print $1}')
-
-          echo "Found version tag: $version_tag"
-          {echo "version_tag<<EOF"
-          echo "$version_tag"
-          echo "EOF" } >> "$GITHUB_OUTPUT"
+            echo "Looking for version tag(s) matching this digest..."
+            version_tag=$(gcloud artifacts docker tags list "$IMAGE"| grep "$digest" | grep '^v\.' | awk '{print $1}')
+            if [[ -z "$version_tag" ]]; then
+              echo "Existing image with no v.x.x.x tag. Check Artifacts repository. Abording..."
+              exit 1
+            fi
+            echo "tag=$version_tag" >> $GITHUB_OUTPUT
+          fi
       - name: Enviar la construcció a Google Cloud Build
-        run: gcloud builds submit --config=cloudbuild.yaml .
+        run: gcloud builds submit . --config=cloudbuild.yaml --substitutions=_TAG=${{ steps.extract_tag.outputs.tag }}
