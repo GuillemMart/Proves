@@ -6,29 +6,22 @@ on:
       - main
 
 jobs:
-  #build_artifacts:
-   # runs-on: ubuntu-latest
-    #defaults:
-     # run:
-      #  working-directory: ./
-    #steps:
-     # - name: fem un build al google cloud artifacts
-      #run: gcloud builds submit --tag europe-southwest1-docker.pkg.dev/rosepetal-dev/rosepetal-dep/rosepetal-dep-proves
-
-    #  - name: Instal·lar Google Cloud SDK
-        #run: curl -sSL https://sdk.cloud.google.com | bash source $HOME/google-cloud-sdk/path.bash.inc
-
-      #- name: Autenticar-se amb Google Cloud
-       # run: gcloud auth activate-service-account --key-file=$GOOGLE_CLOUD_KEY_FILE
-        #env:
-         # GOOGLE_CLOUD_KEY_FILE: ${{ secrets.GOOGLE_CLOUD_KEY_FILE }}
-
-      #- name: Enviar la construcció a Google Cloud Build
-       # run: |
-       #   gcloud builds submit --config=cloudbuild.yaml .
-
-  hello_world:
+  build_artifacts:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./
     steps:
-      - name: hello
-        run: echo "Hello"
+      - name: fem un build al google cloud artifacts
+        run: gcloud builds submit --tag europe-southwest1-docker.pkg.dev/rosepetal-dev/rosepetal-dep/rosepetal-dep-proves
+
+      - name: Instal·lar Google Cloud SDK
+        run: curl -sSL https://sdk.cloud.google.com | bash source $HOME/google-cloud-sdk/path.bash.inc
+
+      - name: Autenticar-se amb Google Cloud
+        run: gcloud auth activate-service-account --key-file=$GOOGLE_CLOUD_KEY_FILE
+        env:
+          GOOGLE_CLOUD_KEY_FILE: ${{ secrets.GOOGLE_CLOUD_KEY_FILE }}
+
+      - name: Enviar la construcció a Google Cloud Build
+        run: gcloud builds submit --config=cloudbuild.yaml .
