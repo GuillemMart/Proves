@@ -7,7 +7,7 @@ steps:
       - 'Dockerfile.rethinkdb'
       - '--progress=plain'
       - '--compress'
-      - '--squash'
+      #- '--squash'
       - '-t'
       - 'europe-southwest1-docker.pkg.dev/rosepetal-dev/rosepetal-dep/rosepetal-dep-proves:latest'
       - '-t'
