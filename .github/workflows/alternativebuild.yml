@@ -11,8 +11,6 @@ env:
   REPO: test-repo
   IMAGE_NAME: rosepetal-dep-proves
   SOURCE_IMAGE_NAME: rosepetal-dep-ajenti
-  ARTIFACT_PATH: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/${{ env.IMAGE_NAME }}
-  SOURCE_ARTIFACT_PATH: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/rosepetal-dep/${{ env.SOURCE_IMAGE_NAME }}
 
 jobs:
   build_artifacts:
@@ -33,12 +31,12 @@ jobs:
       - name: Extract version tag (v.x.x.x)
         id: extract_tag
         run: |
-          IMAGE="${{ env.SOURCE_ARTIFACT_PATH }}"
-          digest=$(gcloud artifacts docker tags list "$IMAGE" | grep latest | awk '{print $3}')
+          SOURCE_ARTIFACT_PATH="${REGION}-docker.pkg.dev/${PROJECT_ID}/rosepetal-dep/${SOURCE_IMAGE_NAME}"
+          digest=$(gcloud artifacts docker tags list "$SOURCE_ARTIFACT_PATH" | grep latest | awk '{print $3}')
           if [[ -z "$digest" ]]; then
             echo "tag=v.1.0.0" >> $GITHUB_OUTPUT
           else
-            version_tag=$(gcloud artifacts docker tags list "$IMAGE" | grep "$digest" | grep '^v\.' | awk '{print $1}')
+            version_tag=$(gcloud artifacts docker tags list "$SOURCE_ARTIFACT_PATH" | grep "$digest" | grep '^v\.' | awk '{print $1}')
             if [[ -z "$version_tag" ]]; then
               echo "No v.x.x.x tag found. Inconsistent image. Aborting..."
               exit 1
@@ -49,23 +47,24 @@ jobs:
             minor=${version_parts[1]}
             patch=${version_parts[2]}
             new_patch=$((patch+1))
-            INCREMENTED_TAG="v.$major.$minor.$new_patch"
-            echo "tag=$INCREMENTED_TAG" >> $GITHUB_OUTPUT
+            echo "tag=v.$major.$minor.$new_patch" >> $GITHUB_OUTPUT
           fi
 
       - name: Build Docker image
         run: |
+          ARTIFACT_PATH="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE_NAME}"
           docker build \
             --build-arg=DOCKER_BUILDKIT=1 \
             -f Dockerfile.rethinkdb \
             --progress=plain \
             --compress \
-            -t ${{ env.ARTIFACT_PATH }}:latest \
-            -t ${{ env.ARTIFACT_PATH }}:${{ steps.extract_tag.outputs.tag }} \
+            -t "$ARTIFACT_PATH:latest" \
+            -t "$ARTIFACT_PATH:${{ steps.extract_tag.outputs.tag }}" \
             .
 
       - name: Push Docker images
         run: |
-          gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
-          docker push ${{ env.ARTIFACT_PATH }}:latest
-          docker push ${{ env.ARTIFACT_PATH }}:${{ steps.extract_tag.outputs.tag }}
+          gcloud auth configure-docker "${REGION}-docker.pkg.dev"
+          ARTIFACT_PATH="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE_NAME}"
+          docker push "$ARTIFACT_PATH:latest"
+          docker push "$ARTIFACT_PATH:${{ steps.extract_tag.outputs.tag }}"
