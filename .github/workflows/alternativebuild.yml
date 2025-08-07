@@ -67,4 +67,4 @@ jobs:
        -name: Push Docker images
         run: |
           docker push europe-southwest1-docker.pkg.dev/rosepetal-dev/test-repo/rosepetal-dep-proves:latest
-          docker push europe-southwest1-docker.pkg.dev/rosepetal-dev/test-repo/rosepetal-dep-proves:${{ steps.extract_tag.outputs.tag }}
+          docker push europe-southwest1-docker.pkg.dev/rosepetal-dev/test-repo/rosepetal-dep-proves:${{ steps.extract_tag.outputs.tag }} 
