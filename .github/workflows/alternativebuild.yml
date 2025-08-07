@@ -1,4 +1,3 @@
-#Aquest github actions té per objectiu el build automàtic de noves versions de les imatges a Cloud Build respectant les versions actuals
 name: Build Artifacts
 
 on:
@@ -6,51 +5,54 @@ on:
     branches:
       - main
 
-jobs:
+env:
+  REGION: europe-southwest1
+  PROJECT_ID: rosepetal-dev
+  REPO: test-repo
+  IMAGE_NAME: rosepetal-dep-proves
+  SOURCE_IMAGE_NAME: rosepetal-dep-ajenti
+  ARTIFACT_PATH: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/${{ env.IMAGE_NAME }}
+  SOURCE_ARTIFACT_PATH: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/rosepetal-dep/${{ env.SOURCE_IMAGE_NAME }}
 
+jobs:
   build_artifacts:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: 'Autenticar-se amb Google Cloud'
-        uses: 'google-github-actions/auth@v2'
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v2
         with:
           credentials_json: '${{ secrets.GOOGLE_CLOUD_KEY_FILE }}'
 
       - name: Set up Google Cloud SDK
-        uses: 'google-github-actions/setup-gcloud@v2'
+        uses: google-github-actions/setup-gcloud@v2
 
-      - name: Trobar el tag de la versio (v.x.x.x)
+      - name: Extract version tag (v.x.x.x)
         id: extract_tag
         run: |
-          IMAGE="europe-southwest1-docker.pkg.dev/rosepetal-dev/rosepetal-dep/rosepetal-dep-ajenti"
+          IMAGE="${{ env.SOURCE_ARTIFACT_PATH }}"
           digest=$(gcloud artifacts docker tags list "$IMAGE" | grep latest | awk '{print $3}')
           if [[ -z "$digest" ]]; then
-            echo "Encara no hi ha cap imatge penjada"
             echo "tag=v.1.0.0" >> $GITHUB_OUTPUT
           else
-            echo "Digest: $digest"
-            echo "Looking for version tag(s) matching this digest..."
-            version_tag=$(gcloud artifacts docker tags list "$IMAGE"| grep "$digest" | grep '^v\.' | awk '{print $1}')
+            version_tag=$(gcloud artifacts docker tags list "$IMAGE" | grep "$digest" | grep '^v\.' | awk '{print $1}')
             if [[ -z "$version_tag" ]]; then
-              echo "Existing image with no v.x.x.x tag. Check Artifacts repository. This might be an inconsistency. Abording..."
+              echo "No v.x.x.x tag found. Inconsistent image. Aborting..."
               exit 1
             fi
-            #Extraiem la part numèrica per fer un upgrade del tag
             NUMERIC_PART=${version_tag#v.}
             IFS='.' read -r -a version_parts <<< "$NUMERIC_PART"
             major=${version_parts[0]}
             minor=${version_parts[1]}
             patch=${version_parts[2]}
-
             new_patch=$((patch+1))
-
             INCREMENTED_TAG="v.$major.$minor.$new_patch"
-            
             echo "tag=$INCREMENTED_TAG" >> $GITHUB_OUTPUT
           fi
+
       - name: Build Docker image
         run: |
           docker build \
@@ -58,11 +60,12 @@ jobs:
             -f Dockerfile.rethinkdb \
             --progress=plain \
             --compress \
-            -t europe-southwest1-docker.pkg.dev/rosepetal-dev/test-repo/rosepetal-dep-proves:latest \
-            -t europe-southwest1-docker.pkg.dev/rosepetal-dev/test-repo/rosepetal-dep-proves:${{ steps.extract_tag.outputs.tag }} \
+            -t ${{ env.ARTIFACT_PATH }}:latest \
+            -t ${{ env.ARTIFACT_PATH }}:${{ steps.extract_tag.outputs.tag }} \
             .
+
       - name: Push Docker images
         run: |
-          gcloud auth configure-docker europe-southwest1-docker.pkg.dev
-          docker push europe-southwest1-docker.pkg.dev/rosepetal-dev/test-repo/rosepetal-dep-proves:latest
-          docker push europe-southwest1-docker.pkg.dev/rosepetal-dev/test-repo/rosepetal-dep-proves:${{ steps.extract_tag.outputs.tag }} 
+          gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+          docker push ${{ env.ARTIFACT_PATH }}:latest
+          docker push ${{ env.ARTIFACT_PATH }}:${{ steps.extract_tag.outputs.tag }}
