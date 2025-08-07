@@ -9,16 +9,16 @@ steps:
       - '--compress'
       #- '--squash'
       - '-t'
-      - 'europe-southwest1-docker.pkg.dev/rosepetal-dev/rosepetal-dep/rosepetal-dep-proves:latest'
+      - 'europe-southwest1-docker.pkg.dev/rosepetal-dev/test-repo/rosepetal-dep-proves:latest'
       - '-t'
-      - 'europe-southwest1-docker.pkg.dev/rosepetal-dev/rosepetal-dep/rosepetal-dep-proves:$_TAG'
+      - 'europe-southwest1-docker.pkg.dev/rosepetal-dev/test-repo/rosepetal-dep-proves:$_TAG'
       - '.'
     env:
       - 'DOCKER_BUILDKIT=1'
 
 images:
-  - 'europe-southwest1-docker.pkg.dev/rosepetal-dev/rosepetal-dep/rosepetal-dep-proves:latest'
-  - 'europe-southwest1-docker.pkg.dev/rosepetal-dev/rosepetal-dep/rosepetal-dep-proves:$_TAG'
+  - 'europe-southwest1-docker.pkg.dev/rosepetal-dev/test-repo/rosepetal-dep-proves:latest'
+  - 'europe-southwest1-docker.pkg.dev/rosepetal-dev/test-repo/rosepetal-dep-proves:$_TAG'
 
 substitutions:
   _TAG: 'v.1.0.0'
