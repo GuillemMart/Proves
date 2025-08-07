@@ -11,7 +11,6 @@ jobs:
   build_artifacts:
     runs-on: ubuntu-latest
     steps:
-      #Agafem tots els fitxers del repositori
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -64,7 +63,7 @@ jobs:
             -t europe-southwest1-docker.pkg.dev/rosepetal-dev/test-repo/rosepetal-dep-proves:latest \
             -t europe-southwest1-docker.pkg.dev/rosepetal-dev/test-repo/rosepetal-dep-proves:${{ steps.extract_tag.outputs.tag }} \
             .
-       -name: Push Docker images
+      - name: Push Docker images
         run: |
           docker push europe-southwest1-docker.pkg.dev/rosepetal-dev/test-repo/rosepetal-dep-proves:latest
           docker push europe-southwest1-docker.pkg.dev/rosepetal-dev/test-repo/rosepetal-dep-proves:${{ steps.extract_tag.outputs.tag }} 
