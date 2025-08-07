@@ -20,6 +20,9 @@ jobs:
         with:
           credentials_json: '${{ secrets.GOOGLE_CLOUD_KEY_FILE }}'
 
+      - name: Set up Google Cloud SDK
+        uses: 'google-github-actions/setup-gcloud@v2'
+
       - name: Trobar el tag de la versio (v.x.x.x)
         id: extract_tag
         run: |
