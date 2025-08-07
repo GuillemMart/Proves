@@ -1,22 +1,22 @@
 steps:
   # Step 1: Write a Dockerfile into the workspace
-  - name: 'ubuntu'
-    id: 'write-dockerfile'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        cat <<EOF > Dockerfile
-        FROM rethinkdb:2.4
-        EXPOSE 28015 29015 8080
-        CMD ["rethinkdb"]
-        EOF
+  # - name: 'ubuntu'
+  #   id: 'write-dockerfile'
+  #   entrypoint: 'bash'
+  #   args:
+  #     - '-c'
+  #     - |
+  #       cat <<EOF > Dockerfile
+  #       FROM rethinkdb:2.4
+  #       EXPOSE 28015 29015 8080
+  #       CMD ["rethinkdb"]
+  #       EOF
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
       - '--build-arg=DOCKER_BUILDKIT=1'
-      #- '-f'
-      #- 'Dockerfile.rethinkdb'
+      - '-f'
+      - 'Dockerfile.rethinkdb'
       - '--progress=plain'
       - '--compress'
       #- '--squash'
