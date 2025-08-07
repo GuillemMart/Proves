@@ -50,4 +50,4 @@ jobs:
             echo "tag=$INCREMENTED_TAG" >> $GITHUB_OUTPUT
           fi
       - name: Enviar la construcció a Google Cloud Build
-        run: gcloud builds submit . --config=cloudbuild.yaml --gcs-source-staging-dir=gs://rp-cloudbuild-staging/ --substitutions=_TAG=${{ steps.extract_tag.outputs.tag }} 
+        run: gcloud builds submit . --config=cloudbuild.yaml --gcs-source-staging-dir=gs://rp-cloudbuild-staging --substitutions=_TAG=${{ steps.extract_tag.outputs.tag }} 
