@@ -63,5 +63,6 @@ jobs:
             .
       - name: Push Docker images
         run: |
+          gcloud auth configure-docker europe-southwest1-docker.pkg.dev
           docker push europe-southwest1-docker.pkg.dev/rosepetal-dev/test-repo/rosepetal-dep-proves:latest
           docker push europe-southwest1-docker.pkg.dev/rosepetal-dev/test-repo/rosepetal-dep-proves:${{ steps.extract_tag.outputs.tag }} 
