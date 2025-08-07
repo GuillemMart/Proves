@@ -15,8 +15,8 @@ steps:
     args:
       - 'build'
       - '--build-arg=DOCKER_BUILDKIT=1'
-      - '-f'
-      - 'Dockerfile.rethinkdb'
+      #- '-f'
+      #- 'Dockerfile.rethinkdb'
       - '--progress=plain'
       - '--compress'
       #- '--squash'
