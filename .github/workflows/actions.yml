@@ -19,6 +19,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Make build script executable
+        run: chmod +x ./build-actions.sh
+
       - name: Run tests
         run: |
           if [ -d "tests" ]; then
