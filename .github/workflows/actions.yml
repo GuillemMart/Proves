@@ -44,7 +44,7 @@ jobs:
             exit 0
           fi
 
-          if [[ "$DIRECTIVE" == "major" || "$DIRECTIVE" == "minor" || "$DIRECTIVE" == "patch" || "$DIRECTIVE" != \[v.*\] ]]; then
+          if [[ "$DIRECTIVE" == "[major]" || "$DIRECTIVE" == "[minor]" || "$DIRECTIVE" == "[patch]" || "$DIRECTIVE" != \[v.*\] ]]; then
 
             SOURCE_ARTIFACT_PATH="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE_NAME}"
             digest=$(gcloud artifacts docker tags list "$SOURCE_ARTIFACT_PATH" | grep latest | awk '{print $3}')
@@ -65,9 +65,9 @@ jobs:
               minor=${version_parts[1]}
               patch=${version_parts[2]}
 
-              if [[ "$DIRECTIVE" == "major" ]]; then 
+              if [[ "$DIRECTIVE" == "[major]" ]]; then 
                 major=$((major+1))
-              elif [[ "$DIRECTIVE" == "minor" ]]; then
+              elif [[ "$DIRECTIVE" == "[minor]" ]]; then
                 minor=$((minor+1))
               else
                 patch=$((patch+1))
@@ -88,7 +88,7 @@ jobs:
             -f Dockerfile.rethinkdb \
             --progress=plain \
             --compress \
-            -- squash \
+            --squash \
             -t "$ARTIFACT_PATH:latest" \
             -t "$ARTIFACT_PATH:${{ steps.extract_tag.outputs.tag }}" \
             .
