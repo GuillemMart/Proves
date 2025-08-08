@@ -73,7 +73,7 @@ jobs:
                 patch=$((patch+1))
               fi
               echo "tag=v.$major.$minor.$patch" >> $GITHUB_OUTPUT
-            fi
+
           else
             echo "tag=$(echo $DIRECTIVE | sed 's/\[\(.*\)\]/\1/')" >> $GITHUB_OUTPUT
           fi
@@ -83,7 +83,8 @@ jobs:
           DOCKER_BUILDKIT: 1
         run: |
           ARTIFACT_PATH="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE_NAME}"
-          docker build \
+          docker buildx create --use
+          docker buildx build \
             -f Dockerfile.rethinkdb \
             --progress=plain \
             --compress \
