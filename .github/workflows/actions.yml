@@ -73,7 +73,7 @@ jobs:
                 patch=$((patch+1))
               fi
               echo "tag=v.$major.$minor.$patch" >> $GITHUB_OUTPUT
-
+            fi
           else
             echo "tag=$(echo $DIRECTIVE | sed 's/\[\(.*\)\]/\1/')" >> $GITHUB_OUTPUT
           fi
