@@ -83,8 +83,7 @@ jobs:
           DOCKER_BUILDKIT: 1
         run: |
           ARTIFACT_PATH="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE_NAME}"
-          docker buildx create --use
-          docker buildx build \
+          docker build \
             -f Dockerfile.rethinkdb \
             --progress=plain \
             --compress \
