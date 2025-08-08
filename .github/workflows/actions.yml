@@ -27,7 +27,7 @@ jobs:
             # REPLACE THIS FOR THE TESTS LAUNCHMENT
             # ==================================================================== 
           else
-            exit 0
+            exit 1
           fi
   
 
