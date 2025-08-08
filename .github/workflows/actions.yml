@@ -93,7 +93,7 @@ jobs:
       - name: Build Docker image
         env:
           DOCKER_BUILDKIT: 1
-        run: ./build.sh "${{ steps.extract_tag.outputs.tag }}"
+        run: ./build-actions.sh "${{ steps.extract_tag.outputs.tag }}"
 
       - name: Push Docker images
         run: |
