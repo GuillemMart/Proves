@@ -19,6 +19,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Run tests
+        run: |
+          if [ -d "tests" ]; then
+            echo "Running tests..."
+            # ====================================================================
+            # REPLACE THIS FOR THE TESTS LAUNCHMENT
+            # ==================================================================== 
+          else
+            exit 0
+          fi
+  
+
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v2
         with:
