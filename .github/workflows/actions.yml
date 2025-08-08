@@ -10,7 +10,6 @@ env:
   PROJECT_ID: rosepetal-dev
   REPO: test-repo
   IMAGE_NAME: rosepetal-dep-proves
-  SOURCE_IMAGE_NAME: rosepetal-dep-ajenti
 
 jobs:
   build_artifacts:
@@ -31,33 +30,64 @@ jobs:
       - name: Extract version tag (v.x.x.x)
         id: extract_tag
         run: |
-          SOURCE_ARTIFACT_PATH="${REGION}-docker.pkg.dev/${PROJECT_ID}/rosepetal-dep/${SOURCE_IMAGE_NAME}"
-          digest=$(gcloud artifacts docker tags list "$SOURCE_ARTIFACT_PATH" | grep latest | awk '{print $3}')
-          if [[ -z "$digest" ]]; then
-            echo "tag=v.1.0.0" >> $GITHUB_OUTPUT
+          COMMIT_MSG="${{ github.event.head_commit.message }}"
+          DIRECTIVE=$(echo "$COMMIT_MSG" | grep -o '\[.*\]' | tr '[:upper:]' '[:lower:]')
+
+          if [ -z "$DIRECTIVE" ]; then
+            DIRECTIVE="[patch]"
+          fi  
+
+          echo "Directiva trobada: $DIRECTIVE"
+
+          if [[ "$DIRECTIVE" == "skip ci" ]]; then
+            echo "Aturant l'script"
+            exit 0
+          fi
+
+          if [[ "$DIRECTIVE" == "major" || "$DIRECTIVE" == "minor" || "$DIRECTIVE" == "patch" || "$DIRECTIVE" != \[v.*\] ]]; then
+
+            SOURCE_ARTIFACT_PATH="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE_NAME}"
+            digest=$(gcloud artifacts docker tags list "$SOURCE_ARTIFACT_PATH" | grep latest | awk '{print $3}')
+
+            if [[ -z "$digest" ]]; then
+              echo "tag=v.1.0.0" >> $GITHUB_OUTPUT
+            else
+              version_tag=$(gcloud artifacts docker tags list "$SOURCE_ARTIFACT_PATH" | grep "$digest" | grep '^v\.' | awk '{print $1}')
+
+              if [[ -z "$version_tag" ]]; then
+                echo "No v.x.x.x tag found. Inconsistent image. Please add a tag to Cloud Artifacts Registry. Aborting..."
+                exit 1
+              fi
+
+              NUMERIC_PART=${version_tag#v.}
+              IFS='.' read -r -a version_parts <<< "$NUMERIC_PART"
+              major=${version_parts[0]}
+              minor=${version_parts[1]}
+              patch=${version_parts[2]}
+
+              if [[ "$DIRECTIVE" == "major" ]]; then 
+                major=$((major+1))
+              elif [[ "$DIRECTIVE" == "minor" ]]; then
+                minor=$((minor+1))
+              else
+                patch=$((patch+1))
+              fi
+              echo "tag=v.$major.$minor.$patch" >> $GITHUB_OUTPUT
+
           else
-            version_tag=$(gcloud artifacts docker tags list "$SOURCE_ARTIFACT_PATH" | grep "$digest" | grep '^v\.' | awk '{print $1}')
-            if [[ -z "$version_tag" ]]; then
-              echo "No v.x.x.x tag found. Inconsistent image. Aborting..."
-              exit 1
-            fi
-            NUMERIC_PART=${version_tag#v.}
-            IFS='.' read -r -a version_parts <<< "$NUMERIC_PART"
-            major=${version_parts[0]}
-            minor=${version_parts[1]}
-            patch=${version_parts[2]}
-            new_patch=$((patch+1))
-            echo "tag=v.$major.$minor.$new_patch" >> $GITHUB_OUTPUT
+            echo "tag=$(echo $DIRECTIVE | sed 's/\[\(.*\)\]/\1/')" >> $GITHUB_OUTPUT
           fi
 
       - name: Build Docker image
+        env:
+          DOCKER_BUILDKIT: 1
         run: |
           ARTIFACT_PATH="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE_NAME}"
           docker build \
-            --build-arg=DOCKER_BUILDKIT=1 \
             -f Dockerfile.rethinkdb \
             --progress=plain \
             --compress \
+            -- squash \
             -t "$ARTIFACT_PATH:latest" \
             -t "$ARTIFACT_PATH:${{ steps.extract_tag.outputs.tag }}" \
             .
